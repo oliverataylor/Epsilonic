@@ -5,8 +5,6 @@ Epsilonic is a desktop generative-music player by Oliver Taylor. It creates loop
 - **Ethereal Drift** — an ambient, layered arrangement.
 - **Bossa Staccato** — a rhythmic bossa-inspired arrangement.
 
-The included forest and guitar photographs are the backgrounds for the two modes.
-
 ## Run it
 
 Install Python 3.10 or later, then open PowerShell in this folder and run:
