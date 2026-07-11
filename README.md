@@ -14,7 +14,7 @@ pip install -r requirements.txt
 python epsilonic.py
 ```
 
-Use the dropdown to change the style, **PAUSE** to stop or resume playback, and close the window when you are done. Epsilonic creates a temporary `dream_A.mid` file while it runs and removes it on close.
+Use the dropdown to switch between styles, **PAUSE** to stop or resume playback, and close the window when you are done. Epsilonic creates a temporary `dream_A.mid` file while it runs and removes it on close.
 
 ## Files
 
