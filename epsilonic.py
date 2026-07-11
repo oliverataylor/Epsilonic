@@ -18,10 +18,14 @@ current_style = "Ethereal Drift"
 is_paused = False  
 
 PROGRESSIONS = [
-    ["Cmaj7", "A7", "Dm7", "G7"], ["Gmaj7", "E7", "Am7", "D7"],         
-    ["Fmaj7", "G7", "Cmaj7", "C6"], ["Amaj7", "B7", "Emaj7", "E6"],       
-    ["Dmaj7", "Em7", "F#m7", "Em7"], ["Cmaj7", "D7", "Gmaj7", "G6"],       
-    ["Bbmaj7", "C7", "Fmaj7", "F6"], ["Emaj7", "F#7", "Bmaj7", "B6"]       
+    ["Cmaj7", "A7", "Dm7", "G7"],
+    ["Gmaj7", "E7", "Am7", "D7"],         
+    ["Fmaj7", "G7", "Cmaj7", "C6"],
+    ["Amaj7", "B7", "Emaj7", "E6"],       
+    ["Dmaj7", "Em7", "F#m7", "Em7"],
+    ["Cmaj7", "D7", "Gmaj7", "G6"],       
+    ["Bbmaj7", "C7", "Fmaj7", "F6"],
+    ["Emaj7", "F#7", "Bmaj7", "B6"]    
 ]
 
 NOTE_MAP = {
@@ -44,7 +48,7 @@ THEMES = {
 def parse_root(ch):
     return (ch[:2], ch[2:]) if len(ch) >= 2 and ch[:2] in NOTE_MAP else (ch[0], ch[1:])
 
-def chord_to_b_string_voicing(ch, step_index, chord_idx):
+def bossa_voicing(ch, step_index, chord_idx):
     root, quality = parse_root(ch)
     base = NOTE_MAP.get(root, 60)
     voicing = [base, base + (3 if "m" in quality and "maj" not in quality else 4), base + 7]
@@ -91,13 +95,14 @@ def make_song():
     celesta_lead = pretty_midi.Instrument(program=8)
     music_box_lead = pretty_midi.Instrument(program=10)
 
-    # Dynamic target inclusion for control changes
     targets = [piano_inst, choir_inst] + ([] if is_bossa else [celesta_lead, music_box_lead])
     for inst in targets:
         inst.control_changes.append(pretty_midi.ControlChange(91, 127, 0))
         inst.control_changes.append(pretty_midi.ControlChange(93, 127, 0))
 
     beat = 0.0
+    last_lead_pitch = None
+
     for _ in range(NUMBER_OF_PROGRESSIONS):
         for chord_idx, ch in enumerate(random.choice(PROGRESSIONS)):
             scale = SCALES.get(ch, [60, 62, 64, 67, 69, 72])
@@ -105,7 +110,7 @@ def make_song():
             if is_bossa:
                 rhythm_steps = [0.0, 0.5, 0.75, 1.25, 1.5, 2.0, 2.5, 2.75, 3.5]
                 for idx, step in enumerate(rhythm_steps):
-                    for n in chord_to_b_string_voicing(ch, step_index=idx, chord_idx=chord_idx):
+                    for n in bossa_voicing(ch, step_index=idx, chord_idx=chord_idx):
                         piano_inst.notes.append(pretty_midi.Note(
                             velocity=random.randint(80, 92), pitch=n,
                             start=(beat + step) * time_scale, end=(beat + step + 0.12) * time_scale
@@ -150,12 +155,52 @@ def make_song():
                         choices = [c for c, cond in [(-1, bass_idx > 0), (1, bass_idx < len(bass_scale) - 1)] if cond]
                         bass_idx += random.choice(choices if choices else [0])
 
-                offsets = ([0, 1, 2, 4, 3, 2] if chord_idx == 0 else 
-                           [2, 3, 4, 5, 4, 2] if chord_idx == 1 else 
-                           [4, 3, 2, 3, 1, 2] if chord_idx == 2 else [3, 2, 1, 0, 1, 0])
+                if chord_idx == 0:
+                    offsets = [0, 1, 2, 4, 3, 2]
+                elif chord_idx == 1:
+                    offsets = [2, 3, 4, 5, 4, 2]
+                elif chord_idx == 2:
+                    offsets = [4, 3, 2, 3, 1, 2]
+                else:
+                    offsets = [3, 2, 1, 0, 1, 0]
 
-                for idx, (l_step, duration) in enumerate([(0.0, 0.45), (0.5, 0.45), (1.0, 0.45), (1.5, 0.85), (2.5, 0.45), (3.0, 0.85)]):
-                    lead_pitch = scale[offsets[idx] % len(scale)] + 12
+                if random.random() < 0.25:
+                    offsets = random.sample(offsets, len(offsets))
+
+                rhythm = [(0.0, 0.45), (0.5, 0.45), (1.0, 0.45), (1.5, 0.85), (2.5, 0.45), (3.0, 0.85)]
+                
+                if random.random() < 0.2:
+                    rhythm = [(0.0, 0.85), (1.0, 0.45), (1.5, 0.45), (2.0, 0.85), (3.0, 0.45), (3.5, 0.45)]
+
+                for idx, (l_step, duration) in enumerate(rhythm):
+                    offset_val = offsets[idx % len(offsets)]
+                    base_pitch = scale[offset_val % len(scale)] + 12
+                    
+                    if base_pitch == last_lead_pitch and random.random() < 0.65:
+                        alternative_offsets = [o for o in offsets if scale[o % len(scale)] + 12 != last_lead_pitch]
+                        if alternative_offsets:
+                            base_pitch = scale[random.choice(alternative_offsets) % len(scale)] + 12
+                        else:
+                            base_pitch = (base_pitch + 2) if offset_val % 2 == 0 else (base_pitch - 2)
+
+                    lead_pitch = base_pitch
+                    
+                    if random.random() < 0.15:
+                        variant = random.choice([12, 7])
+                        if variant == 7:
+                            root_pitch = scale[0] + 12
+                            fifth_candidate = root_pitch + 7
+                            if fifth_candidate in [n + 12 for n in scale] or fifth_candidate in [n + 24 for n in scale]:
+                                if fifth_candidate != last_lead_pitch or random.random() >= 0.65:
+                                    lead_pitch = fifth_candidate
+                                else:
+                                    lead_pitch = base_pitch + 12
+                            else:
+                                lead_pitch = base_pitch + 12
+                        else:
+                            lead_pitch = base_pitch + 12
+                    
+                    last_lead_pitch = lead_pitch
                     v_vel = random.randint(40, 48)
                     sp, ep = (beat + l_step) * time_scale, (beat + l_step + duration) * time_scale
                     
