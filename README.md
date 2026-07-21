@@ -1,9 +1,6 @@
 # Epsilonic
 
-Epsilonic is a desktop generative-music player by Oliver Taylor. It creates looping MIDI music in two styles:
-
-- **Ethereal Drift** — an ambient, layered arrangement.
-- **Bossa Staccato** — a rhythmic bossa-inspired arrangement.
+Epsilonic is a desktop generative-music player.
 
 ## Run it
 
@@ -18,7 +15,7 @@ Use the dropdown to switch between styles, **PAUSE** to stop or resume playback,
 
 ## Files
 
-- `epsilonic.py` — application source code
-- `epsilonic.png` — Ethereal Drift background
-- `epsilonic2.png` — Bossa Staccato background
-- `requirements.txt` — Python packages required to run the app
+- `epsilonic.py:` application source code
+- `epsilonic.png:` Ethereal Drift background
+- `epsilonic2.png:` Bossa Staccato background
+- `requirements.txt:` Python packages required to run the app
