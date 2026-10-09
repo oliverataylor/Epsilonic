@@ -1,6 +1,6 @@
 # Epsilonic
 
-Epsilonic is a desktop generative-music player.
+Epsilonic is a generative music player.
 
 ## Run it
 
