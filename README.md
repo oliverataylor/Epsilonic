@@ -1,6 +1,6 @@
 # Epsilonic
 
-Endless generative music.
+Epsilonic is an endless music player.
 
 Choose **Ethereal Feel**, **Bossa Staccato**, or **Shoegaze Haze**. Use **PAUSE / RESUME** to control playback. The display shows the current chord and elapsed time.
 
